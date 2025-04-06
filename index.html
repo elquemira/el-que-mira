@@ -1,6 +1,4 @@
-# HTML con protección anti-spam y guardado del mensaje
-
-secure_html = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -165,9 +163,3 @@ secure_html = """<!DOCTYPE html>
   </script>
 </body>
 </html>
-"""
-
-secure_path = Path("/mnt/data/el-que-mira-secure.html")
-secure_path.write_text(secure_html, encoding="utf-8")
-
-secure_path.name
