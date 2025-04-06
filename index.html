@@ -1,9 +1,11 @@
-<!DOCTYPE html>
+firebase_html = """<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>El Que Mira</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <style>
     body {
       margin: 0;
@@ -84,7 +86,7 @@
     Solo recordar. Recordar que hay algo más allá del ruido.<br />
     Si tienes algo que decir desde tu raíz, déjalo aquí.
   </p>
-  <form>
+  <form onsubmit="enviarTrazo(event)">
     <textarea placeholder="Escribe sin nombre... sin firma..."></textarea>
     <button type="submit">Dejar trazo</button>
   </form>
@@ -114,5 +116,34 @@
   <footer>
     Este lugar pertenece a El Que Mira. Y ahora, también a ti.
   </footer>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBe8DmPmS50IDrwxMFcRv1Tp3xLf4kZfZY",
+      authDomain: "elquemira-da494.firebaseapp.com",
+      projectId: "elquemira-da494"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function enviarTrazo(event) {
+      event.preventDefault();
+      db.collection("trazos").add({
+        timestamp: new Date()
+      }).then(() => {
+        alert("Tu trazo fue entregado al fuego.");
+      }).catch((error) => {
+        alert("Algo falló... pero tu intención llegó.");
+      });
+    }
+  </script>
 </body>
 </html>
+"""
+
+# Guardar como nuevo archivo HTML
+firebase_path = Path("/mnt/data/el-que-mira-firebase.html")
+firebase_path.write_text(firebase_html, encoding="utf-8")
+
+firebase_path.name
