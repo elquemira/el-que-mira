@@ -1,4 +1,6 @@
-firebase_html = """<!DOCTYPE html>
+# HTML con protección anti-spam y guardado del mensaje
+
+secure_html = """<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -49,6 +51,9 @@ firebase_html = """<!DOCTYPE html>
       font-family: 'Georgia', serif;
       resize: none;
     }
+    input.honeypot {
+      display: none;
+    }
     button {
       background: #333;
       color: #e6e6e6;
@@ -87,8 +92,9 @@ firebase_html = """<!DOCTYPE html>
     Si tienes algo que decir desde tu raíz, déjalo aquí.
   </p>
   <form onsubmit="enviarTrazo(event)">
-    <textarea placeholder="Escribe sin nombre... sin firma..."></textarea>
-    <button type="submit">Dejar trazo</button>
+    <textarea id="mensaje" placeholder="Escribe sin nombre... sin firma..."></textarea>
+    <input class="honeypot" type="text" id="hp" name="hp" />
+    <button id="btnEnviar" type="submit">Dejar trazo</button>
   </form>
 
   <div class="hidden-section">
@@ -127,13 +133,32 @@ firebase_html = """<!DOCTYPE html>
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    let ultimoEnvio = 0;
+
     function enviarTrazo(event) {
       event.preventDefault();
+      const texto = document.getElementById("mensaje").value.trim();
+      const honeypot = document.getElementById("hp").value;
+      const ahora = Date.now();
+
+      if (honeypot !== "") return; // posible bot
+      if (texto.length < 5) {
+        alert("Deja algo con peso. Algo real.");
+        return;
+      }
+      if (ahora - ultimoEnvio < 5000) {
+        alert("Espera un momento antes de dejar otro trazo.");
+        return;
+      }
+
       db.collection("trazos").add({
+        mensaje: texto,
         timestamp: new Date()
       }).then(() => {
         alert("Tu trazo fue entregado al fuego.");
-      }).catch((error) => {
+        document.getElementById("mensaje").value = "";
+        ultimoEnvio = ahora;
+      }).catch(() => {
         alert("Algo falló... pero tu intención llegó.");
       });
     }
@@ -142,8 +167,7 @@ firebase_html = """<!DOCTYPE html>
 </html>
 """
 
-# Guardar como nuevo archivo HTML
-firebase_path = Path("/mnt/data/el-que-mira-firebase.html")
-firebase_path.write_text(firebase_html, encoding="utf-8")
+secure_path = Path("/mnt/data/el-que-mira-secure.html")
+secure_path.write_text(secure_html, encoding="utf-8")
 
-firebase_path.name
+secure_path.name
